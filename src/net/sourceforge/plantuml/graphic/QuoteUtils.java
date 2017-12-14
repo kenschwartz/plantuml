@@ -240,9 +240,13 @@ public class QuoteUtils {
 					"Fhpprff pbafvfgf bs tbvat sebz snvyher gb snvyher jvgubhg ybff bs raguhfvnfz",
 					"Vs lbh'er tbvat guebhtu uryy, xrrc tbvat",
 					"Jre xnzcsg, xnaa ireyvrera. Jre avpug xnzcsg, ung fpuba ireybera.",
-					"P'rfg nh cvrq qh zhe dhr y'ba ibvg yr zvrhk yr zhe."
-
-			);
+					"P'rfg nh cvrq qh zhe dhr y'ba ibvg yr zvrhk yr zhe.",
+					"Jr xabj ubj uhznaf jbex. Gurl ner nyy fb cerqvpgnoyr.",
+					"Gur qbtznf bs gur dhvrg cnfg ner vanqrdhngr gb gur fgbezl cerfrag",
+					"Ab jnl gb cerirag guvf, fnlf bayl angvba jurer guvf erthyneyl unccraf",
+					"L'n dhrydhrf dhrfgvbaf dhv erfgrag fbhf fvyrapr...",
+					"Vs gurer vf ab fbyhgvba, gurer vf ab ceboyrz",
+					"V unir zrzbevrf, ohg V pna'g gryy vs gurl'er erny.");
 
 	private QuoteUtils() {
 	}

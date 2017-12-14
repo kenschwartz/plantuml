@@ -30,48 +30,40 @@
  *
  *
  * Original Author:  Arnaud Roques
- * 
+ *
  *
  */
-package net.sourceforge.plantuml.creole;
+package net.sourceforge.plantuml.code;
 
-import java.awt.geom.Dimension2D;
-import java.util.List;
+public class PairInt {
 
-import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.UTranslate;
+	private final int x;
+	private final int y;
 
-public class AtomTexts implements Atom {
-	private final List<AtomText> all;
-
-	public AtomTexts(List<AtomText> texts) {
-		this.all = texts;
+	public PairInt(int x, int y) {
+		this.x = x;
+		this.y = y;
 	}
 
-	public Dimension2D calculateDimension(StringBounder stringBounder) {
-		double width = 0;
-		double height = 0;
-		for (AtomText text : all) {
-			final Dimension2D dim = text.calculateDimension(stringBounder);
-			width = Math.max(width, dim.getWidth());
-			height += dim.getHeight();
-		}
-		return new Dimension2DDouble(width, height);
+	public PairInt rotate() {
+		return new PairInt(-y, x);
 	}
 
-	public double getStartingAltitude(StringBounder stringBounder) {
-		return all.get(0).getStartingAltitude(stringBounder);
+	@Override
+	public String toString() {
+		return "(" + x + "," + y + ")";
 	}
 
-	public void drawU(UGraphic ug) {
-		double y = 0;
-		for (AtomText text : all) {
-			final Dimension2D dim = text.calculateDimension(ug.getStringBounder());
-			text.drawU(ug.apply(new UTranslate(0, y)));
-			y += dim.getHeight();
-		}
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public PairInt plus(PairInt other) {
+		return new PairInt(x + other.x, y + other.y);
 	}
 
 }

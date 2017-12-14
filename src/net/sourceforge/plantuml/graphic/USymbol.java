@@ -62,6 +62,8 @@ public abstract class USymbol {
 	public final static USymbol FILE = record("FILE", SkinParameter.FILE, new USymbolFile());
 	public final static USymbol RECTANGLE = record("RECTANGLE", SkinParameter.RECTANGLE, new USymbolRect(
 			SkinParameter.RECTANGLE, HorizontalAlignment.CENTER));
+	public final static USymbol COLLECTIONS = record("COLLECTIONS", SkinParameter.COLLECTIONS, new USymbolCollections(
+			SkinParameter.RECTANGLE, HorizontalAlignment.CENTER));
 	public final static USymbol AGENT = record("AGENT", SkinParameter.AGENT, new USymbolRect(SkinParameter.AGENT,
 			HorizontalAlignment.CENTER));
 	public final static USymbol ACTOR = record("ACTOR", SkinParameter.ACTOR, new USymbolActor());
@@ -124,8 +126,8 @@ public abstract class USymbol {
 
 	public abstract TextBlock asSmall(TextBlock name, TextBlock label, TextBlock stereotype, SymbolContext symbolContext);
 
-	public abstract TextBlock asBig(TextBlock label, TextBlock stereotype, double width, double height,
-			SymbolContext symbolContext);
+	public abstract TextBlock asBig(TextBlock label, HorizontalAlignment labelAlignment, TextBlock stereotype,
+			double width, double height, SymbolContext symbolContext);
 
 	static class Margin {
 		private final double x1;
@@ -197,6 +199,8 @@ public abstract class USymbol {
 			usymbol = USymbol.PACKAGE;
 		} else if (symbol.equalsIgnoreCase("rectangle")) {
 			usymbol = USymbol.RECTANGLE;
+		} else if (symbol.equalsIgnoreCase("collections")) {
+			usymbol = USymbol.COLLECTIONS;
 		} else if (symbol.equalsIgnoreCase("node")) {
 			usymbol = USymbol.NODE;
 		} else if (symbol.equalsIgnoreCase("frame")) {

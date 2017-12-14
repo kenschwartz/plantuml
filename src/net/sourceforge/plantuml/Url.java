@@ -54,6 +54,7 @@ public class Url implements EnsureVisible {
 		if (url.contains("{")) {
 			throw new IllegalArgumentException(url);
 		}
+		url = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(url, "\"");
 		this.url = url;
 		if (tooltip == null) {
 			this.tooltip = url;
@@ -111,6 +112,10 @@ public class Url implements EnsureVisible {
 
 	public void ensureVisible(double x, double y) {
 		visible.ensureVisible(x, y);
+	}
+
+	public boolean hasData() {
+		return visible.hasData();
 	}
 
 	public static final Comparator<Url> SURFACE_COMPARATOR = new Comparator<Url>() {

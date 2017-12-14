@@ -119,7 +119,7 @@ public class OptionPrint {
 		System.out.println("    -decodeurl\t\tTo retrieve the PlantUML source from an encoded URL");
 		System.out.println("    -syntax\t\tTo report any syntax error from standard input without generating images");
 		System.out.println("    -language\t\tTo print the list of PlantUML keywords");
-		System.out.println("    -nosuggestengine\tTo disable the suggest engine when errors in diagrams");
+		// System.out.println("    -nosuggestengine\tTo disable the suggest engine when errors in diagrams");
 		System.out.println("    -checkonly\t\tTo check the syntax of files without generating images");
 		System.out.println("    -failfast\t\tTo stop processing as soon as a syntax error in diagram occurs");
 		System.out.println("    -failfast2\t\tTo do a first syntax check before processing files, to fail even faster");
@@ -141,6 +141,8 @@ public class OptionPrint {
 		System.out.println("    -splash\t\tTo display a splash screen with some progress bar");
 		System.out.println("    -progress\t\tTo display a textual progress bar in console");
 		System.out.println("    -pipeimageindex N\tTo generate the Nth image with pipe option");
+		System.out.println("    -extractstdlib\tTo extract PlantUML Standard Library into stdlib folder");
+		System.out.println("    -filename \"example.puml\"\tTo override %filename% variable");
 		System.out.println();
 		System.out.println("If needed, you can setup the environment variable GRAPHVIZ_DOT.");
 		exit();

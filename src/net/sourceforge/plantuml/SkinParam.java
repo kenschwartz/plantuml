@@ -36,10 +36,12 @@
 package net.sourceforge.plantuml;
 
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -48,6 +50,7 @@ import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.creole.CommandCreoleMonospaced;
+import net.sourceforge.plantuml.cucadiagram.LinkStyle;
 import net.sourceforge.plantuml.cucadiagram.Rankdir;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.DotSplines;
@@ -91,7 +94,9 @@ public class SkinParam implements ISkinParam {
 	}
 
 	public void setParam(String key, String value) {
-		params.put(cleanForKey(key), StringUtils.trin(value));
+		for (String key2 : cleanForKey(key)) {
+			params.put(key2, StringUtils.trin(value));
+		}
 	}
 
 	private SkinParam(UmlDiagramType type) {
@@ -108,16 +113,23 @@ public class SkinParam implements ISkinParam {
 		return result;
 	}
 
-	static String cleanForKey(String key) {
+	private final Map<String, List<String>> cacheCleanForKey = new HashMap<String, List<String>>();
+
+	List<String> cleanForKey(String key) {
+		List<String> result = cacheCleanForKey.get(key);
+		if (result == null) {
+			result = cleanForKeySlow(key);
+			cacheCleanForKey.put(key, result);
+		}
+		return result;
+	}
+
+	List<String> cleanForKeySlow(String key) {
 		key = StringUtils.trin(StringUtils.goLowerCase(key));
 		key = key.replaceAll("_|\\.|\\s", "");
 		// key = replaceSmart(key, "partition", "package");
 		key = replaceSmart(key, "sequenceparticipant", "participant");
 		key = replaceSmart(key, "sequenceactor", "actor");
-		// if (key.contains("arrow")) {
-		// key = key.replaceAll("activityarrow|objectarrow|classarrow|componentarrow|statearrow|usecasearrow",
-		// "genericarrow");
-		// }
 		key = key.replaceAll("activityarrow", "arrow");
 		key = key.replaceAll("objectarrow", "arrow");
 		key = key.replaceAll("classarrow", "arrow");
@@ -125,13 +137,16 @@ public class SkinParam implements ISkinParam {
 		key = key.replaceAll("statearrow", "arrow");
 		key = key.replaceAll("usecasearrow", "arrow");
 		key = key.replaceAll("sequencearrow", "arrow");
-		final Matcher2 m = stereoPattern.matcher(key);
-		if (m.find()) {
-			final String s = m.group(1);
-			key = key.replaceAll(stereoPatternString, "");
-			key += "<<" + s + ">>";
+		final Matcher2 mm = stereoPattern.matcher(key);
+		final List<String> result = new ArrayList<String>();
+		while (mm.find()) {
+			final String s = mm.group(1);
+			result.add(key.replaceAll(stereoPatternString, "") + "<<" + s + ">>");
 		}
-		return key;
+		if (result.size() == 0) {
+			result.add(key);
+		}
+		return Collections.unmodifiableList(result);
 	}
 
 	private static String replaceSmart(String s, String src, String target) {
@@ -158,7 +173,13 @@ public class SkinParam implements ISkinParam {
 	}
 
 	public String getValue(String key) {
-		return params.get(cleanForKey(key));
+		for (String key2 : cleanForKey(key)) {
+			final String result = params.get(key2);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
 	}
 
 	static String humanName(String key) {
@@ -191,7 +212,7 @@ public class SkinParam implements ISkinParam {
 			return null;
 		}
 		final boolean acceptTransparent = param == ColorParam.background
-				|| param == ColorParam.sequenceGroupBodyBackground;
+				|| param == ColorParam.sequenceGroupBodyBackground || param == ColorParam.sequenceBoxBackground;
 		return getIHtmlColorSet().getColorIfValid(value, acceptTransparent);
 	}
 
@@ -634,16 +655,38 @@ public class SkinParam implements ISkinParam {
 	}
 
 	public UStroke getThickness(LineParam param, Stereotype stereotype) {
+		LinkStyle style = null;
 		if (stereotype != null) {
 			checkStereotype(stereotype);
+
+			final String styleValue = getValue(param.name() + "style" + stereotype.getLabel(false));
+			if (styleValue != null) {
+				style = LinkStyle.fromString2(styleValue);
+			}
+
 			final String value2 = getValue(param.name() + "thickness" + stereotype.getLabel(false));
 			if (value2 != null && value2.matches("[\\d.]+")) {
-				return new UStroke(Double.parseDouble(value2));
+				if (style == null) {
+					style = LinkStyle.NORMAL();
+				}
+				return style.goThickness(Double.parseDouble(value2)).getStroke3();
 			}
 		}
 		final String value = getValue(param.name() + "thickness");
 		if (value != null && value.matches("[\\d.]+")) {
-			return new UStroke(Double.parseDouble(value));
+			if (style == null) {
+				style = LinkStyle.NORMAL();
+			}
+			return style.goThickness(Double.parseDouble(value)).getStroke3();
+		}
+		if (style == null) {
+			final String styleValue = getValue(param.name() + "style");
+			if (styleValue != null) {
+				style = LinkStyle.fromString2(styleValue);
+			}
+		}
+		if (style != null && style.isNormal() == false) {
+			return style.getStroke3();
 		}
 		return null;
 	}
@@ -860,6 +903,11 @@ public class SkinParam implements ISkinParam {
 			return true;
 		}
 		return false;
+	}
+
+	public TikzFontDistortion getTikzFontDistortion() {
+		final String value = getValue("tikzFont");
+		return TikzFontDistortion.fromValue(value);
 	}
 
 }

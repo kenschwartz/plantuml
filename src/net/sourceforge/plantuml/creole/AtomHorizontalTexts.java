@@ -33,36 +33,48 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project3;
+package net.sourceforge.plantuml.creole;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.awt.geom.Dimension2D;
+import java.util.List;
 
-import net.sourceforge.plantuml.command.CommandExecutionResult;
-import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.RegexLeaf;
-import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UTranslate;
 
-public class VerbStarts implements VerbPattern {
+public class AtomHorizontalTexts implements Atom {
+	private final List<Atom> all;
 
-	public Collection<ComplementPattern> getComplements() {
-		return Arrays.<ComplementPattern> asList(new ComplementBeforeOrAfterOrAtTaskStartOrEnd());
+	public AtomHorizontalTexts(List<Atom> texts) {
+		this.all = texts;
 	}
 
-	public IRegex toRegex() {
-		return new RegexLeaf("starts");
+	public Dimension2D calculateDimension(StringBounder stringBounder) {
+		double width = 0;
+		double height = 0;
+		for (Atom text : all) {
+			final Dimension2D dim = text.calculateDimension(stringBounder);
+			height = Math.max(height, dim.getHeight());
+			width += dim.getWidth();
+		}
+		return new Dimension2DDouble(width, height);
 	}
 
-	public Verb getVerb(final GanttDiagram project, RegexResult arg) {
-		return new Verb() {
-			public CommandExecutionResult execute(Subject subject, Complement complement) {
-				final Task task = (Task) subject;
-				final TaskInstant when = (TaskInstant) complement;
-				task.setStart(when.getInstantPrecise());
-				project.addContraint(new GanttConstraint(when, new TaskInstant(task, TaskAttribute.START)));
-				return CommandExecutionResult.ok();
-			}
-
-		};
+	public double getStartingAltitude(StringBounder stringBounder) {
+		if (all.size() == 0) {
+			return 0;
+		}
+		return all.get(0).getStartingAltitude(stringBounder);
 	}
+
+	public void drawU(UGraphic ug) {
+		double x = 0;
+		for (Atom text : all) {
+			final Dimension2D dim = text.calculateDimension(ug.getStringBounder());
+			text.drawU(ug.apply(new UTranslate(x, 0)));
+			x += dim.getWidth();
+		}
+	}
+
 }

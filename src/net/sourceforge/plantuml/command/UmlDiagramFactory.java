@@ -118,7 +118,7 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		if (commandControl == CommandControl.NOT_OK) {
 			final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, "Syntax Error?", /* it.currentNum(), */it.peek()
 					.getLocation());
-			if (OptionFlags.getInstance().isUseSuggestEngine()) {
+			if (OptionFlags.getInstance().isUseSuggestEngine2()) {
 				final SuggestEngine engine = new SuggestEngine(source, this);
 				final SuggestEngineResult result = engine.tryToSuggest(sys);
 				if (result.getStatus() == SuggestEngineStatus.ONE_SUGGESTION) {
@@ -266,8 +266,8 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 
 	final protected void addCommonCommands(List<Command> cmds) {
 		cmds.add(new CommandNope());
-		cmds.add(new CommandComment());
-		cmds.add(new CommandMultilinesComment());
+//		cmds.add(new CommandComment());
+//		cmds.add(new CommandMultilinesComment());
 		cmds.add(new CommandPragma());
 		cmds.add(new CommandTitle());
 		cmds.add(new CommandCaption());

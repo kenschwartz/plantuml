@@ -40,6 +40,7 @@ import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
@@ -61,7 +62,7 @@ import net.sourceforge.plantuml.graphic.color.Colors;
 
 public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiagram> {
 
-	public static final String ALL_TYPES = "artifact|actor|folder|card|file|package|rectangle|node|frame|cloud|database|queue|stack|storage|agent|usecase|component|boundary|control|entity|interface|circle";
+	public static final String ALL_TYPES = "artifact|actor|folder|card|file|package|rectangle|node|frame|cloud|database|queue|stack|storage|agent|usecase|component|boundary|control|entity|interface|circle|collections";
 
 	public CommandCreateElementFull() {
 		super(getRegexConcat());
@@ -204,7 +205,8 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 		return CommandExecutionResult.ok();
 	}
 
-	public static boolean existsWithBadType(DescriptionDiagram diagram, final Code code, LeafType type, USymbol usymbol) {
+	public static boolean existsWithBadType(AbstractEntityDiagram diagram, final Code code, LeafType type,
+			USymbol usymbol) {
 		if (diagram.leafExist(code) == false) {
 			return false;
 		}
@@ -212,7 +214,7 @@ public class CommandCreateElementFull extends SingleLineCommand2<DescriptionDiag
 		if (other.getLeafType() != type) {
 			return true;
 		}
-		if (other.getUSymbol() != usymbol) {
+		if (usymbol != null && other.getUSymbol() != usymbol) {
 			return true;
 		}
 		return false;

@@ -44,26 +44,48 @@
  *
  */
 package h;
+
+import h.ST_HDict_t.Amp;
+
 import java.util.Arrays;
 import java.util.List;
 
+import smetana.core.UnsupportedStarStruct;
+import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
+import smetana.core.amiga.StarStruct;
 
-//2 aqoki3wwzhqcy2mpz21vzdona
+public class ST_HDict_t extends UnsupportedStructAndPtr {
 
-public interface _Note_t___ extends __ptr__ {
-	public static List<String> DEFINITION = Arrays.asList(
-"typedef struct Node",
-"{",
-"int count",
-"int level",
-"struct Branch branch[64]",
-"}",
-"Node_t");
+	private final StarStruct parent;
+
+	public ST_HDict_t() {
+		this(null);
+	}
+
+	public ST_HDict_t(StarStruct parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public StarStruct amp() {
+		return new Amp();
+	}
+
+	public class Amp extends UnsupportedStarStruct {
+
+	}
+	// "typedef struct obyh",
+	// "{",
+	// "Dtlink_t link",
+	// "int key",
+	// "Leaf_t d",
+	// "}",
+	// "HDict_t");
 }
 
-// typedef struct Node {
-//     int count;
-//     int level;			/* 0 is leaf, others positive */
-//     struct Branch branch[64];
-// } Node_t;
+// typedef struct obyh {
+// Dtlink_t link;
+// int key;
+// Leaf_t d;
+// } HDict_t;

@@ -59,6 +59,7 @@ public class Preprocessor implements ReadLine {
 	private static final String ARG = "(?:\\(" + ID_ARG + "(?:," + ID_ARG + ")*?\\))?";
 	private static final Pattern2 definePattern = MyPattern.cmpile("^[%s]*!define[%s]+(" + ID + ARG + ")"
 			+ "(?:[%s]+(.*))?$");
+	private static final Pattern2 filenamePattern = MyPattern.cmpile("^[%s]*!filename[%s]+(.+)$");
 	private static final Pattern2 undefPattern = MyPattern.cmpile("^[%s]*!undef[%s]+(" + ID + ")$");
 	private static final Pattern2 definelongPattern = MyPattern.cmpile("^[%s]*!definelong[%s]+(" + ID + ARG + ")");
 	private static final Pattern2 enddefinelongPattern = MyPattern.cmpile("^[%s]*" + END_DEFINE_LONG + "[%s]*$");
@@ -66,16 +67,35 @@ public class Preprocessor implements ReadLine {
 	private final Defines defines;
 	private final PreprocessorInclude rawSource;
 	private final ReadLineInsertable source;
+	private final SubPreprocessor subPreprocessor;
 
-	public Preprocessor(ReadLine reader, String charset, Defines defines, File newCurrentDir,
+	public Sub getSub(String blocname) {
+		return subPreprocessor.getSub(blocname);
+	}
+
+	public Preprocessor(List<String> config, ReadLine reader, String charset, Defines defines, File newCurrentDir,
 			DefinitionsContainer definitionsContainer) {
 		this.defines = defines;
 		this.defines.saveState();
-		this.rawSource = new PreprocessorInclude(reader, defines, charset, newCurrentDir, definitionsContainer);
+		this.rawSource = new PreprocessorInclude(config, reader, defines, charset, newCurrentDir, definitionsContainer);
 		this.source = new ReadLineInsertable(new IfManager(rawSource, defines));
+		this.subPreprocessor = new SubPreprocessor(config, charset, defines, definitionsContainer, new ReadLine() {
+
+			public void close() throws IOException {
+				Preprocessor.this.close();
+			}
+
+			public CharSequence2 readLine() throws IOException {
+				return readLineInternal();
+			}
+		});
 	}
 
 	public CharSequence2 readLine() throws IOException {
+		return subPreprocessor.readLine();
+	}
+
+	private CharSequence2 readLineInternal() throws IOException {
 		final CharSequence2 s = source.readLine();
 		if (s == null) {
 			return null;
@@ -84,7 +104,11 @@ public class Preprocessor implements ReadLine {
 			this.defines.restoreState();
 		}
 
-		Matcher2 m = definePattern.matcher(s);
+		Matcher2 m = filenamePattern.matcher(s);
+		if (m.find()) {
+			return manageFilename(m);
+		}
+		m = definePattern.matcher(s);
 		if (m.find()) {
 			return manageDefine(m, s.toString().trim().endsWith("()"));
 		}
@@ -151,12 +175,18 @@ public class Preprocessor implements ReadLine {
 			if (read == null) {
 				return null;
 			}
-			def.add(read.toString2());
 			if (enddefinelongPattern.matcher(read).find()) {
 				defines.define(group1, def, emptyParentheses);
 				return this.readLine();
 			}
+			def.add(read.toString2());
 		}
+	}
+
+	private CharSequence2 manageFilename(Matcher2 m) throws IOException {
+		final String group1 = m.group(1);
+		this.defines.overrideFilename(group1);
+		return this.readLine();
 	}
 
 	private CharSequence2 manageDefine(Matcher2 m, boolean emptyParentheses) throws IOException {
@@ -194,5 +224,5 @@ public class Preprocessor implements ReadLine {
 	public Set<FileWithSuffix> getFilesUsed() {
 		return Collections.unmodifiableSet(rawSource.getFilesUsedGlobal());
 	}
-	
+
 }

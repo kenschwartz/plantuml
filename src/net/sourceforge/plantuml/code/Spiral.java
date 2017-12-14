@@ -35,50 +35,33 @@
  */
 package net.sourceforge.plantuml.code;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+public class Spiral {
 
-public class CompressionGZip implements Compression {
+	private PairInt current = new PairInt(0, 0);
+	private PairInt direction = new PairInt(1, 0);
+	private int step = 0;
+	private int lim = 1;
+	private int len = 1;
+	private int cpt = 0;
 
-	class MyGZIPOutputStream extends GZIPOutputStream {
-
-		public MyGZIPOutputStream(OutputStream baos) throws IOException {
-			super(baos);
-			def.setLevel(9);
-		}
-
+	public PairInt nextPoint() {
+		final PairInt result = current;
+		oneStep();
+		return result;
 	}
 
-	public byte[] compress(byte[] in) {
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try {
-			final GZIPOutputStream gz = new MyGZIPOutputStream(baos);
-			gz.write(in);
-			gz.close();
-			baos.close();
-			return baos.toByteArray();
-		} catch (IOException e) {
-			throw new IllegalStateException(e.toString());
+	private void oneStep() {
+		this.current = this.current.plus(this.direction);
+		step++;
+		if (step == lim) {
+			this.direction = this.direction.rotate();
+			cpt++;
+			if (cpt == 2) {
+				cpt = 0;
+				len++;
+			}
+			lim += len;
 		}
-	}
-
-	public byte[] decompress(byte[] in) throws IOException {
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-		final ByteArrayInputStream bais = new ByteArrayInputStream(in);
-		final GZIPInputStream gz = new GZIPInputStream(bais);
-		int read;
-		while ((read = gz.read()) != -1) {
-			baos.write(read);
-		}
-		gz.close();
-		bais.close();
-		baos.close();
-		return baos.toByteArray();
 	}
 
 }
